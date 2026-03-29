@@ -13,9 +13,9 @@ jobs:
     secrets: inherit
   send-notification:
     name: Send Notification
-    needs: [ update-scheduled-release-version ]
+    needs: [update-scheduled-release-version]
     if: ${{ failure() || cancelled() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Send Notification
         uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1

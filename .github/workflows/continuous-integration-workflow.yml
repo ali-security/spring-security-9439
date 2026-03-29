@@ -3,9 +3,7 @@ name: CI
 on:
   push:
     branches-ignore:
-      - "dependabot/**"
-  schedule:
-    - cron: '0 10 * * *' # Once per day at 10am UTC
+      - dependabot/**
   workflow_dispatch: # Manual trigger
 
 env:
@@ -20,8 +18,8 @@ jobs:
     uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        jdk: [ 17 ]
+        os: [ubuntu-24.04, windows-2025]
+        jdk: [17]
     with:
       runs-on: ${{ matrix.os }}
       java-version: ${{ matrix.jdk }}
@@ -43,7 +41,7 @@ jobs:
     secrets: inherit
   check-samples:
     name: Check Samples
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ github.repository_owner == 'spring-projects' }}
     steps:
       - uses: actions/checkout@v4
@@ -66,28 +64,28 @@ jobs:
           ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" test integrationTest
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build, test, check-samples ]
+    needs: [build, test, check-samples]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-docs:
     name: Deploy Docs
-    needs: [ build, test, check-samples ]
+    needs: [build, test, check-samples]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-docs.yml@v1
     with:
       should-deploy-docs: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   deploy-schema:
     name: Deploy Schema
-    needs: [ build, test, check-samples ]
+    needs: [build, test, check-samples]
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@v1
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   perform-release:
     name: Perform Release
-    needs: [ deploy-artifacts, deploy-docs, deploy-schema ]
+    needs: [deploy-artifacts, deploy-docs, deploy-schema]
     uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1
     with:
       should-perform-release: ${{ needs.deploy-artifacts.outputs.artifacts-deployed }}
@@ -99,9 +97,9 @@ jobs:
     secrets: inherit
   send-notification:
     name: Send Notification
-    needs: [ perform-release ]
+    needs: [perform-release]
     if: ${{ !success() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Send Notification
         uses: spring-io/spring-security-release-tools/.github/actions/send-notification@v1

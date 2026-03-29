@@ -1,7 +1,5 @@
 name: Release Scheduler
 on:
-  schedule:
-  - cron: '15 15 * * MON' # Every Monday at 3:15pm UTC
   workflow_dispatch:
 permissions: read-all
 jobs:
@@ -11,8 +9,8 @@ jobs:
     strategy:
       matrix:
         # List of active maintenance branches.
-        branch: [ main, 6.4.x, 6.3.x ]
-    runs-on: ubuntu-latest
+        branch: [main, 6.4.x, 6.3.x]
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout
       uses: actions/checkout@v4

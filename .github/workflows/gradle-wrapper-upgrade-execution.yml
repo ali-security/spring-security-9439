@@ -1,15 +1,13 @@
 name: Execute Gradle Wrapper Upgrade
 
 on:
-  schedule:
-    - cron:  '0 2 * * *' # 2am UTC
   workflow_dispatch:
 permissions:
   pull-requests: write
 jobs:
   upgrade_wrapper:
     name: Execution
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Set up Git configuration
         env:
@@ -24,7 +22,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v2
       - name: Upgrade Wrappers
