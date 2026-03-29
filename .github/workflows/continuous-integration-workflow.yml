@@ -62,6 +62,24 @@ jobs:
           ./gradlew publishMavenJavaPublicationToLocalRepository
           ./gradlew cloneRepository -PrepositoryName="spring-projects/spring-security-samples" -Pref="$samples_branch" -PcloneOutputDirectory="$SAMPLES_DIR"
           ./gradlew --refresh-dependencies --project-dir "$SAMPLES_DIR" --init-script spring-security-ci.gradle -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" -PspringSecurityVersion="$version" test integrationTest
+  upload-artifacts:
+    name: Upload Build Artifacts
+    needs: [build]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v2
+        with:
+          java-version: '17'
+          distribution: temurin
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: '**/build/libs/*.jar'
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [build, test, check-samples]
